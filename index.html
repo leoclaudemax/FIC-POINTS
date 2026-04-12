@@ -8,270 +8,630 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #1a1a2e;
+    --bg2: #16213e;
+    --bg3: #0f3460;
+    --surface: #1f2940;
+    --surface2: #263450;
+    --border: #2a3a55;
+    --border2: #3a4f70;
+    --text: #e8e8e8;
+    --text2: #a0aec0;
+    --text3: #6b7fa0;
+    --accent: #e2995e;
+    --accent2: #f0b27a;
+    --green: #68d391;
+    --green2: #38a169;
+    --blue: #63b3ed;
+    --red: #fc8181;
+    --yellow: #f6e05e;
+    --purple: #b794f4;
+  }
+
   body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: #0f172a;
-    color: #e2e8f0;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
     min-height: 100vh;
-    display: flex;
-    flex-direction: column;
   }
-  header {
-    background: #1e293b;
-    border-bottom: 2px solid #334155;
-    padding: 12px 20px;
+
+  /* === NAV === */
+  nav {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 20px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 10px;
+    height: 52px;
+    gap: 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
   }
-  header h1 {
-    font-size: 1.1rem;
-    color: #38bdf8;
+  nav .logo {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--accent);
     white-space: nowrap;
+    letter-spacing: -0.3px;
   }
-  header h1 span { color: #94a3b8; font-weight: 400; font-size: 0.85rem; }
-  .mode-tabs {
+  nav .logo span {
+    color: var(--text3);
+    font-weight: 400;
+    font-size: 0.78rem;
+    margin-left: 6px;
+  }
+  .nav-tabs {
     display: flex;
-    gap: 6px;
-  }
-  .mode-tab {
-    padding: 6px 16px;
-    border-radius: 6px;
-    border: 1px solid #475569;
-    background: transparent;
-    color: #94a3b8;
-    cursor: pointer;
-    font-size: 0.85rem;
-    transition: all 0.15s;
-  }
-  .mode-tab:hover { border-color: #38bdf8; color: #e2e8f0; }
-  .mode-tab.active { background: #38bdf8; color: #0f172a; border-color: #38bdf8; font-weight: 600; }
-  .stats-bar {
-    display: flex;
-    gap: 16px;
-    font-size: 0.8rem;
-    color: #94a3b8;
-  }
-  .stats-bar .val { color: #38bdf8; font-weight: 600; }
-  main {
+    gap: 2px;
     flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px;
-    gap: 16px;
-    max-width: 800px;
-    width: 100%;
-    margin: 0 auto;
-  }
-  .card {
-    background: #1e293b;
-    border: 1px solid #334155;
-    border-radius: 12px;
-    width: 100%;
-    overflow: hidden;
-    transition: box-shadow 0.2s;
-  }
-  .card-question {
-    padding: 28px 24px;
-    text-align: center;
-  }
-  .card-question h2 {
-    font-size: 1.8rem;
-    color: #f1f5f9;
-    margin-bottom: 6px;
-  }
-  .card-question .subtitle {
-    color: #64748b;
-    font-size: 0.85rem;
-  }
-  .card-answer {
-    display: none;
-    flex-direction: column;
-  }
-  .card-answer.visible { display: flex; }
-  #map {
-    width: 100%;
-    height: 400px;
-    border-top: 1px solid #334155;
-    border-bottom: 1px solid #334155;
-    z-index: 1;
-  }
-  .coord-bar {
-    padding: 10px 20px;
-    text-align: center;
-    font-family: 'SF Mono', 'Fira Code', monospace;
-    font-size: 0.85rem;
-    color: #94a3b8;
-    background: #162032;
-  }
-  .actions {
-    display: flex;
-    gap: 10px;
-    width: 100%;
     justify-content: center;
-    flex-wrap: wrap;
   }
-  .btn {
-    padding: 10px 24px;
+  .nav-tab {
+    padding: 8px 18px;
     border-radius: 8px;
     border: none;
-    font-size: 0.95rem;
+    background: transparent;
+    color: var(--text3);
     cursor: pointer;
-    font-weight: 600;
+    font-size: 0.82rem;
+    font-weight: 500;
     transition: all 0.15s;
+    letter-spacing: 0.2px;
   }
-  .btn-reveal {
-    background: #38bdf8;
-    color: #0f172a;
-    min-width: 200px;
+  .nav-tab:hover { color: var(--text); background: var(--surface2); }
+  .nav-tab.active { background: var(--accent); color: #1a1a2e; font-weight: 700; }
+  .nav-stats {
+    display: flex;
+    gap: 14px;
+    font-size: 0.75rem;
+    color: var(--text3);
+    white-space: nowrap;
   }
-  .btn-reveal:hover { background: #7dd3fc; }
-  .btn-easy { background: #22c55e; color: #052e16; }
-  .btn-good { background: #3b82f6; color: #fff; }
-  .btn-hard { background: #f59e0b; color: #451a03; }
-  .btn-again { background: #ef4444; color: #fff; }
-  .btn-easy:hover { background: #4ade80; }
-  .btn-good:hover { background: #60a5fa; }
-  .btn-hard:hover { background: #fbbf24; }
-  .btn-again:hover { background: #f87171; }
-  .btn-next { background: #6366f1; color: #fff; min-width: 200px; }
-  .btn-next:hover { background: #818cf8; }
-  .btn-skip { background: transparent; color: #64748b; border: 1px solid #334155; }
-  .btn-skip:hover { color: #94a3b8; border-color: #475569; }
+  .nav-stats .v { color: var(--accent2); font-weight: 600; }
 
-  .drill-settings {
-    display: none;
-    background: #1e293b;
-    border: 1px solid #334155;
-    border-radius: 12px;
+  /* === MAIN LAYOUT === */
+  .app {
+    max-width: 860px;
+    margin: 0 auto;
     padding: 20px;
-    width: 100%;
   }
-  .drill-settings.visible { display: block; }
-  .drill-settings h3 { margin-bottom: 12px; color: #38bdf8; }
-  .drill-settings label { display: block; margin-bottom: 10px; font-size: 0.9rem; }
-  .drill-settings select, .drill-settings input[type=number] {
-    background: #0f172a;
-    border: 1px solid #475569;
-    color: #e2e8f0;
-    padding: 6px 10px;
-    border-radius: 6px;
-    margin-left: 8px;
-  }
-  .btn-start-drill {
-    margin-top: 12px;
-    background: #6366f1;
-    color: #fff;
-    padding: 8px 20px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 600;
-  }
-  .btn-start-drill:hover { background: #818cf8; }
+  .hidden { display: none !important; }
+
+  /* === PROGRESS === */
   .progress-bar {
     width: 100%;
-    height: 4px;
-    background: #334155;
+    height: 3px;
+    background: var(--border);
     border-radius: 2px;
+    margin-bottom: 16px;
     overflow: hidden;
   }
   .progress-fill {
     height: 100%;
-    background: #38bdf8;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
     transition: width 0.3s;
+    border-radius: 2px;
   }
+
+  /* === REFERENCE MAP === */
+  .ref-map-wrap {
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    margin-bottom: 16px;
+    position: relative;
+  }
+  .ref-map-label {
+    position: absolute;
+    top: 8px;
+    left: 10px;
+    z-index: 10;
+    font-size: 0.68rem;
+    background: rgba(26,26,46,0.85);
+    color: var(--text3);
+    padding: 3px 8px;
+    border-radius: 4px;
+    pointer-events: none;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  #ref-map, #ref-map-drill, #ref-map-fav {
+    width: 100%;
+    height: 340px;
+  }
+
+  /* === CARD === */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .card-question {
+    padding: 30px 24px 24px;
+    text-align: center;
+  }
+  .card-question h2 {
+    font-size: 2rem;
+    color: #fff;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
+  }
+  .card-question .subtitle {
+    color: var(--text3);
+    font-size: 0.82rem;
+  }
+  .card-answer { display: none; flex-direction: column; }
+  .card-answer.visible { display: flex; }
+  #map {
+    width: 100%;
+    height: 380px;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    z-index: 1;
+  }
+  .coord-bar {
+    padding: 8px 20px;
+    text-align: center;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 0.8rem;
+    color: var(--text3);
+    background: var(--bg2);
+  }
+
+  /* === BUTTONS === */
+  .actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 16px;
+  }
+  .btn {
+    padding: 10px 26px;
+    border-radius: 8px;
+    border: none;
+    font-size: 0.9rem;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.15s;
+    letter-spacing: 0.2px;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-reveal {
+    background: var(--accent);
+    color: #1a1a2e;
+    min-width: 200px;
+  }
+  .btn-reveal:hover { background: var(--accent2); }
+  .btn-easy { background: var(--green); color: #1a3a2e; }
+  .btn-good { background: var(--blue); color: #1a2a3e; }
+  .btn-hard { background: var(--yellow); color: #3a3010; }
+  .btn-again { background: var(--red); color: #3a1a1a; }
+  .btn-easy:hover { filter: brightness(1.1); }
+  .btn-good:hover { filter: brightness(1.1); }
+  .btn-hard:hover { filter: brightness(1.1); }
+  .btn-again:hover { filter: brightness(1.1); }
+  .btn-next { background: var(--purple); color: #1a1a2e; min-width: 200px; }
+  .btn-next:hover { filter: brightness(1.1); }
+  .btn-restart { background: var(--accent); color: #1a1a2e; }
+  .btn-restart:hover { background: var(--accent2); }
+  .kb-hint {
+    font-size: 0.72rem;
+    color: var(--text3);
+    text-align: center;
+    margin-top: 10px;
+    opacity: 0.7;
+  }
+
+  /* === DONE SCREEN === */
   .done-screen {
-    display: none;
     text-align: center;
-    padding: 40px 20px;
+    padding: 50px 20px;
   }
-  .done-screen.visible { display: block; }
-  .done-screen h2 { color: #22c55e; margin-bottom: 10px; }
-  .done-screen p { color: #94a3b8; margin-bottom: 20px; }
-  .btn-restart { background: #38bdf8; color: #0f172a; }
-  .btn-restart:hover { background: #7dd3fc; }
-  .keyboard-hint {
+  .done-screen h2 { color: var(--green); margin-bottom: 10px; font-size: 1.5rem; }
+  .done-screen p { color: var(--text2); margin-bottom: 24px; }
+
+  /* === DRILL SETTINGS === */
+  .settings-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+  }
+  .settings-panel h3 {
+    color: var(--accent);
+    margin-bottom: 16px;
+    font-size: 1rem;
+  }
+  .settings-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    font-size: 0.88rem;
+    color: var(--text2);
+  }
+  .settings-row label { min-width: 60px; }
+  .settings-row select, .settings-row input[type=number] {
+    background: var(--bg);
+    border: 1px solid var(--border2);
+    color: var(--text);
+    padding: 7px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+  }
+  .btn-start {
+    margin-top: 8px;
+    background: var(--accent);
+    color: #1a1a2e;
+    padding: 10px 28px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.9rem;
+  }
+  .btn-start:hover { background: var(--accent2); }
+
+  /* === FAVORITES VIEW === */
+  .favorites-view {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .fav-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .fav-header h3 { color: var(--accent); font-size: 1rem; }
+  .fav-search {
+    background: var(--bg);
+    border: 1px solid var(--border2);
+    color: var(--text);
+    padding: 7px 14px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    width: 200px;
+  }
+  .fav-search::placeholder { color: var(--text3); }
+  .fav-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .fav-count {
+    font-size: 0.8rem;
+    color: var(--text3);
+  }
+  .btn-sm {
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--border2);
+    background: transparent;
+    color: var(--text2);
+    cursor: pointer;
+    font-size: 0.78rem;
+    font-weight: 500;
+  }
+  .btn-sm:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-sm.primary { background: var(--accent); color: #1a1a2e; border-color: var(--accent); font-weight: 700; }
+  .btn-sm.primary:hover { background: var(--accent2); }
+  .fav-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 6px;
+  }
+  .fav-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: var(--surface2);
+    cursor: pointer;
+    transition: all 0.12s;
+    font-size: 0.85rem;
+    color: var(--text2);
+    border: 1px solid transparent;
+    user-select: none;
+  }
+  .fav-item:hover { border-color: var(--border2); }
+  .fav-item.selected {
+    border-color: var(--accent);
+    background: rgba(226,153,94,0.12);
+    color: var(--accent2);
+  }
+  .fav-item .check {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    border: 2px solid var(--border2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 0.7rem;
+    transition: all 0.12s;
+  }
+  .fav-item.selected .check {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #1a1a2e;
+  }
+
+  /* === EXPLORE VIEW === */
+  .explore-view {
+    display: flex;
+    gap: 16px;
+    height: calc(100vh - 110px);
+  }
+  .explore-list {
+    width: 240px;
+    flex-shrink: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .explore-list-header {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .explore-search {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border2);
+    color: var(--text);
+    padding: 7px 10px;
+    border-radius: 6px;
+    font-size: 0.82rem;
+  }
+  .explore-search::placeholder { color: var(--text3); }
+  .explore-items {
+    flex: 1;
+    overflow-y: auto;
+    padding: 6px;
+  }
+  .explore-items::-webkit-scrollbar { width: 5px; }
+  .explore-items::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+  .explore-item {
+    padding: 7px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.83rem;
+    color: var(--text2);
+    transition: all 0.1s;
+    margin-bottom: 2px;
+  }
+  .explore-item:hover { background: var(--surface2); color: var(--text); }
+  .explore-item.active { background: var(--accent); color: #1a1a2e; font-weight: 600; }
+  .explore-map-wrap {
+    flex: 1;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    position: relative;
+  }
+  #explore-map {
+    width: 100%;
+    height: 100%;
+  }
+  .explore-info {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    z-index: 1000;
+    background: rgba(26,26,46,0.92);
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    color: var(--text);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--border);
+  }
+  .explore-info .name { font-weight: 700; color: var(--accent2); }
+  .explore-info .coords {
+    font-family: 'SF Mono', monospace;
     font-size: 0.75rem;
-    color: #475569;
-    text-align: center;
+    color: var(--text3);
+    margin-top: 2px;
   }
-  @media (max-width: 600px) {
-    .card-question h2 { font-size: 1.4rem; }
+
+  /* === RESPONSIVE === */
+  @media (max-width: 700px) {
+    nav { padding: 0 10px; gap: 8px; flex-wrap: wrap; height: auto; padding: 10px; }
+    .nav-tabs { order: 3; width: 100%; justify-content: center; }
+    .nav-tab { padding: 6px 10px; font-size: 0.75rem; }
+    .app { padding: 12px; }
+    .card-question h2 { font-size: 1.5rem; }
     #map { height: 300px; }
-    header { padding: 10px 12px; }
-    main { padding: 12px; }
+    #ref-map, #ref-map-drill, #ref-map-fav { height: 240px; }
+    .explore-view { flex-direction: column; height: auto; }
+    .explore-list { width: 100%; max-height: 250px; }
+    .explore-map-wrap { height: 400px; }
+    .fav-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
   }
 </style>
 </head>
 <body>
-<header>
-  <h1>FIC Delta Geo Cards <span>Skyguide ATC</span></h1>
-  <div class="mode-tabs">
-    <button class="mode-tab active" data-mode="srs">Spaced Repetition</button>
-    <button class="mode-tab" data-mode="drill">Drill Mode</button>
-  </div>
-  <div class="stats-bar">
-    <div>Due: <span class="val" id="stat-due">0</span></div>
-    <div>Learned: <span class="val" id="stat-learned">0</span></div>
-    <div>Total: <span class="val" id="stat-total">0</span></div>
-  </div>
-</header>
 
-<main>
-  <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
-
-  <div class="drill-settings" id="drill-settings">
-    <h3>Drill Settings</h3>
-    <label>Cards: <input type="number" id="drill-count" value="20" min="5" max="200" step="5"></label>
-    <label>Order:
-      <select id="drill-order">
-        <option value="random">Random</option>
-        <option value="alpha">Alphabetical</option>
-        <option value="worst">Worst First</option>
-      </select>
-    </label>
-    <button class="btn-start-drill" id="start-drill">Start Drill</button>
+<nav>
+  <div class="logo">FIC Delta<span>Skyguide ATC</span></div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" data-mode="srs">Spaced Repetition</button>
+    <button class="nav-tab" data-mode="drill">Drill Mode</button>
+    <button class="nav-tab" data-mode="favorites">Favorites</button>
+    <button class="nav-tab" data-mode="explore">Explore</button>
   </div>
+  <div class="nav-stats">
+    <div>Due <span class="v" id="stat-due">0</span></div>
+    <div>Learned <span class="v" id="stat-learned">0</span></div>
+    <div>Total <span class="v" id="stat-total">0</span></div>
+  </div>
+</nav>
 
-  <div class="card" id="card">
+<!-- ========== SRS VIEW ========== -->
+<div class="app" id="view-srs">
+  <div class="progress-bar"><div class="progress-fill" id="progress-srs"></div></div>
+  <div class="ref-map-wrap">
+    <div class="ref-map-label">Reference Map</div>
+    <div id="ref-map"></div>
+  </div>
+  <div class="card" id="card-srs">
     <div class="card-question">
-      <h2 id="q-name">Loading...</h2>
-      <div class="subtitle" id="q-sub"></div>
+      <h2 id="q-name-srs">Loading...</h2>
+      <div class="subtitle" id="q-sub-srs"></div>
     </div>
-    <div class="card-answer" id="card-answer">
+    <div class="card-answer" id="card-answer-srs">
       <div id="map"></div>
-      <div class="coord-bar" id="coord-bar"></div>
+      <div class="coord-bar" id="coord-bar-srs"></div>
     </div>
   </div>
-
-  <div class="actions" id="actions">
-    <button class="btn btn-reveal" id="btn-reveal">Reveal Location</button>
+  <div class="actions" id="actions-srs">
+    <button class="btn btn-reveal" id="btn-reveal-srs">Reveal Location</button>
   </div>
-  <div class="actions" id="rate-actions" style="display:none">
+  <div class="actions hidden" id="rate-actions-srs">
     <button class="btn btn-again" data-rating="1">Again</button>
     <button class="btn btn-hard" data-rating="2">Hard</button>
     <button class="btn btn-good" data-rating="3">Good</button>
     <button class="btn btn-easy" data-rating="4">Easy</button>
   </div>
-  <div class="actions" id="drill-actions" style="display:none">
-    <button class="btn btn-next" id="btn-drill-next">Next Card</button>
-  </div>
-
-  <div class="keyboard-hint" id="kb-hint">Space = Reveal &middot; 1-4 = Rate</div>
-
-  <div class="done-screen" id="done-screen">
+  <div class="kb-hint" id="kb-hint-srs">Space = Reveal</div>
+  <div class="done-screen hidden" id="done-srs">
     <h2>Session Complete</h2>
-    <p id="done-msg"></p>
-    <button class="btn btn-restart" id="btn-restart">Restart</button>
+    <p>All due cards reviewed! Come back later for more.</p>
+    <button class="btn btn-restart" id="restart-srs">Start Again</button>
   </div>
-</main>
+</div>
+
+<!-- ========== DRILL VIEW ========== -->
+<div class="app hidden" id="view-drill">
+  <div class="settings-panel" id="drill-settings">
+    <h3>Drill Settings</h3>
+    <div class="settings-row">
+      <label>Cards</label>
+      <input type="number" id="drill-count" value="20" min="5" max="200" step="5">
+    </div>
+    <div class="settings-row">
+      <label>Order</label>
+      <select id="drill-order">
+        <option value="random">Random</option>
+        <option value="alpha">Alphabetical</option>
+        <option value="worst">Worst First</option>
+      </select>
+    </div>
+    <button class="btn-start" id="start-drill">Start Drill</button>
+  </div>
+  <div class="hidden" id="drill-active">
+    <div class="progress-bar"><div class="progress-fill" id="progress-drill"></div></div>
+    <div class="ref-map-wrap">
+      <div class="ref-map-label">Reference Map</div>
+      <div id="ref-map-drill"></div>
+    </div>
+    <div class="card" id="card-drill">
+      <div class="card-question">
+        <h2 id="q-name-drill">Loading...</h2>
+        <div class="subtitle" id="q-sub-drill"></div>
+      </div>
+      <div class="card-answer" id="card-answer-drill">
+        <div id="map-drill"></div>
+        <div class="coord-bar" id="coord-bar-drill"></div>
+      </div>
+    </div>
+    <div class="actions" id="actions-drill">
+      <button class="btn btn-reveal" id="btn-reveal-drill">Reveal Location</button>
+    </div>
+    <div class="actions hidden" id="next-actions-drill">
+      <button class="btn btn-next" id="btn-next-drill">Next Card</button>
+    </div>
+    <div class="kb-hint" id="kb-hint-drill">Space = Reveal</div>
+  </div>
+  <div class="done-screen hidden" id="done-drill">
+    <h2>Drill Complete</h2>
+    <p id="done-drill-msg"></p>
+    <button class="btn btn-restart" id="restart-drill">New Drill</button>
+  </div>
+</div>
+
+<!-- ========== FAVORITES VIEW ========== -->
+<div class="app hidden" id="view-favorites">
+  <div class="favorites-view">
+    <div class="fav-header">
+      <h3>Select Points to Study</h3>
+      <input type="text" class="fav-search" id="fav-search" placeholder="Search points...">
+    </div>
+    <div class="fav-actions">
+      <span class="fav-count" id="fav-count">0 selected</span>
+      <button class="btn-sm" id="fav-select-all">Select All</button>
+      <button class="btn-sm" id="fav-clear">Clear</button>
+      <button class="btn-sm primary" id="fav-start">Start with Selected</button>
+    </div>
+    <div class="fav-grid" id="fav-grid"></div>
+  </div>
+  <!-- Active favorites drill -->
+  <div class="hidden" id="fav-active">
+    <div class="progress-bar"><div class="progress-fill" id="progress-fav"></div></div>
+    <div class="ref-map-wrap">
+      <div class="ref-map-label">Reference Map</div>
+      <div id="ref-map-fav"></div>
+    </div>
+    <div class="card" id="card-fav">
+      <div class="card-question">
+        <h2 id="q-name-fav">Loading...</h2>
+        <div class="subtitle" id="q-sub-fav"></div>
+      </div>
+      <div class="card-answer" id="card-answer-fav">
+        <div id="map-fav"></div>
+        <div class="coord-bar" id="coord-bar-fav"></div>
+      </div>
+    </div>
+    <div class="actions" id="actions-fav">
+      <button class="btn btn-reveal" id="btn-reveal-fav">Reveal Location</button>
+    </div>
+    <div class="actions hidden" id="next-actions-fav">
+      <button class="btn btn-next" id="btn-next-fav">Next Card</button>
+    </div>
+    <div class="kb-hint" id="kb-hint-fav">Space = Reveal</div>
+  </div>
+  <div class="done-screen hidden" id="done-fav">
+    <h2>Done!</h2>
+    <p id="done-fav-msg"></p>
+    <button class="btn btn-restart" id="restart-fav">Back to Selection</button>
+  </div>
+</div>
+
+<!-- ========== EXPLORE VIEW ========== -->
+<div class="app hidden" id="view-explore" style="max-width:1200px">
+  <div class="explore-view">
+    <div class="explore-list">
+      <div class="explore-list-header">
+        <input type="text" class="explore-search" id="explore-search" placeholder="Search...">
+      </div>
+      <div class="explore-items" id="explore-items"></div>
+    </div>
+    <div class="explore-map-wrap">
+      <div id="explore-map"></div>
+      <div class="explore-info hidden" id="explore-info">
+        <div class="name" id="explore-name"></div>
+        <div class="coords" id="explore-coords"></div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script>
-// === POINT DATA (accurate GPS) ===
+// === POINT DATA ===
 const POINTS = [
   { name: "Aigle", lat: 46.3188, lon: 6.9706 },
   { name: "Annecy", lat: 45.8992, lon: 6.1294 },
@@ -384,38 +744,27 @@ const POINTS = [
 ];
 
 // === SRS ENGINE ===
-const STORAGE_KEY = "fic_delta_srs_v2";
+const STORAGE_KEY = "fic_delta_srs_v3";
+const FAV_KEY = "fic_delta_favs_v1";
 
 function loadSRS() {
-  try {
-    const d = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    if (d && d.cards) return d;
-  } catch(e) {}
+  try { const d = JSON.parse(localStorage.getItem(STORAGE_KEY)); if (d && d.cards) return d; } catch(e) {}
   return { cards: {} };
 }
-
-function saveSRS(data) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-}
+function saveSRS(data) { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
 
 function getCardState(data, name) {
-  if (!data.cards[name]) {
-    data.cards[name] = { interval: 0, ease: 2.5, due: 0, reps: 0, lapses: 0 };
-  }
+  if (!data.cards[name]) data.cards[name] = { interval: 0, ease: 2.5, due: 0, reps: 0, lapses: 0 };
   return data.cards[name];
 }
 
 function rateCard(data, name, rating) {
   const c = getCardState(data, name);
   const now = Date.now();
-  if (rating === 1) {
-    c.interval = 1;
-    c.lapses++;
-    c.reps = 0;
-  } else {
-    if (c.reps === 0) {
-      c.interval = rating === 2 ? 1 : rating === 3 ? 3 : 5;
-    } else {
+  if (rating === 1) { c.interval = 1; c.lapses++; c.reps = 0; }
+  else {
+    if (c.reps === 0) c.interval = rating === 2 ? 1 : rating === 3 ? 3 : 5;
+    else {
       const mult = rating === 2 ? 1.2 : rating === 3 ? c.ease : c.ease * 1.3;
       c.interval = Math.round(Math.max(c.interval * mult, c.interval + 1));
     }
@@ -428,14 +777,12 @@ function rateCard(data, name, rating) {
 
 function getDueCards(data) {
   const now = Date.now();
-  const due = [];
-  const newCards = [];
+  const due = [], newCards = [];
   POINTS.forEach(p => {
     const c = data.cards[p.name];
     if (!c || c.reps === 0) newCards.push(p);
     else if (c.due <= now) due.push(p);
   });
-  // Review due cards first, then new cards
   return [...shuffle(due), ...shuffle(newCards)];
 }
 
@@ -448,248 +795,405 @@ function shuffle(arr) {
   return a;
 }
 
-// === APP STATE ===
-let mode = "srs"; // "srs" or "drill"
+function loadFavorites() {
+  try { return new Set(JSON.parse(localStorage.getItem(FAV_KEY)) || []); } catch(e) { return new Set(); }
+}
+function saveFavorites(set) { localStorage.setItem(FAV_KEY, JSON.stringify([...set])); }
+
+// === STATE ===
 let srsData = loadSRS();
-let queue = [];
-let currentIdx = 0;
-let revealed = false;
-let map = null;
-let marker = null;
-let drillTotal = 0;
-let drillCorrect = 0;
+let favorites = loadFavorites();
+let mode = "srs";
+let maps = {};
+let markers = {};
 
-// === DOM ===
-const $card = document.getElementById("card");
-const $qName = document.getElementById("q-name");
-const $qSub = document.getElementById("q-sub");
-const $answer = document.getElementById("card-answer");
-const $coordBar = document.getElementById("coord-bar");
-const $actions = document.getElementById("actions");
-const $rateActions = document.getElementById("rate-actions");
-const $drillActions = document.getElementById("drill-actions");
-const $progress = document.getElementById("progress");
-const $doneScreen = document.getElementById("done-screen");
-const $doneMsg = document.getElementById("done-msg");
-const $drillSettings = document.getElementById("drill-settings");
-const $kbHint = document.getElementById("kb-hint");
-const $statDue = document.getElementById("stat-due");
-const $statLearned = document.getElementById("stat-learned");
-const $statTotal = document.getElementById("stat-total");
+// === TILE LAYER ===
+const TILE_URL = "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png";
+const TILE_ATTR = '&copy; <a href="https://opentopomap.org">OpenTopoMap</a>';
 
-// === MAP ===
-function initMap() {
-  if (map) { map.remove(); map = null; }
-  map = L.map("map", {
+function createTileLayer() {
+  return L.tileLayer(TILE_URL, { attribution: TILE_ATTR, maxZoom: 17 });
+}
+
+// === REFERENCE MAP (static, no markers, same for every card) ===
+function initRefMap(containerId) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  if (maps[containerId]) { maps[containerId].remove(); }
+  const m = L.map(el, {
+    center: [46.82, 7.0],
+    zoom: 8,
+    zoomControl: false,
+    dragging: false,
+    scrollWheelZoom: false,
+    doubleClickZoom: false,
+    touchZoom: false,
+    boxZoom: false,
+    keyboard: false,
+    attributionControl: false
+  });
+  // Clean white basemap: only borders, lakes, water — no terrain, no labels
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png", {
+    attribution: '&copy; <a href="https://carto.com">CARTO</a>',
+    maxZoom: 19,
+    subdomains: "abcd"
+  }).addTo(m);
+  maps[containerId] = m;
+  return m;
+}
+
+// === ANSWER MAP (interactive, with red dot) ===
+function initAnswerMap(containerId) {
+  if (maps[containerId]) { maps[containerId].remove(); }
+  const m = L.map(containerId, {
     center: [46.8, 7.1],
     zoom: 8,
     zoomControl: true,
     attributionControl: true
   });
-  // Clean topo basemap showing borders, lakes, mountains
-  L.tileLayer("https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png", {
-    attribution: '&copy; <a href="https://opentopomap.org">OpenTopoMap</a> contributors',
-    maxZoom: 17
-  }).addTo(map);
+  createTileLayer().addTo(m);
+  maps[containerId] = m;
+  return m;
 }
 
-function showPointOnMap(point) {
-  if (!map) initMap();
-  if (marker) { map.removeLayer(marker); }
-  marker = L.circleMarker([point.lat, point.lon], {
-    radius: 9,
-    color: "#dc2626",
-    fillColor: "#ef4444",
+function showPointOnMap(mapId, point) {
+  const m = maps[mapId];
+  if (!m) return;
+  if (markers[mapId]) { m.removeLayer(markers[mapId]); }
+  markers[mapId] = L.circleMarker([point.lat, point.lon], {
+    radius: 10,
+    color: "#c0392b",
+    fillColor: "#e74c3c",
     fillOpacity: 0.9,
     weight: 3
-  }).addTo(map);
-  map.setView([point.lat, point.lon], 10, { animate: true });
-  $coordBar.textContent = `${point.lat.toFixed(4)}\u00b0N  ${point.lon.toFixed(4)}\u00b0E`;
+  }).addTo(m);
+  m.setView([point.lat, point.lon], 10, { animate: true });
 }
 
-// === RENDER ===
+// === GENERIC FLASHCARD ENGINE ===
+function createFlashcardEngine(cfg) {
+  let queue = [];
+  let idx = 0;
+  let revealed = false;
+
+  function show() {
+    document.getElementById(cfg.doneId).classList.add("hidden");
+    document.getElementById(cfg.cardId).classList.remove("hidden");
+
+    if (idx >= queue.length) { done(); return; }
+
+    revealed = false;
+    const p = queue[idx];
+    document.getElementById(cfg.nameId).textContent = p.name;
+    if (cfg.subFn) cfg.subFn(p, idx, queue.length);
+    document.getElementById(cfg.answerId).classList.remove("visible");
+    document.getElementById(cfg.revealActionsId).classList.remove("hidden");
+    if (cfg.rateActionsId) document.getElementById(cfg.rateActionsId).classList.add("hidden");
+    if (cfg.nextActionsId) document.getElementById(cfg.nextActionsId).classList.add("hidden");
+    if (cfg.hintId) document.getElementById(cfg.hintId).textContent = "Space = Reveal";
+    if (cfg.progressId) {
+      document.getElementById(cfg.progressId).style.width = (idx / queue.length * 100) + "%";
+    }
+  }
+
+  function reveal() {
+    if (revealed) return;
+    revealed = true;
+    const p = queue[idx];
+    document.getElementById(cfg.answerId).classList.add("visible");
+    document.getElementById(cfg.revealActionsId).classList.add("hidden");
+
+    setTimeout(() => {
+      const m = initAnswerMap(cfg.mapId);
+      showPointOnMap(cfg.mapId, p);
+      document.getElementById(cfg.coordId).textContent =
+        `${p.lat.toFixed(4)}\u00b0N  ${p.lon.toFixed(4)}\u00b0E`;
+    }, 50);
+
+    if (cfg.rateActionsId) {
+      document.getElementById(cfg.rateActionsId).classList.remove("hidden");
+      if (cfg.hintId) document.getElementById(cfg.hintId).textContent = "1 = Again \u00b7 2 = Hard \u00b7 3 = Good \u00b7 4 = Easy";
+    }
+    if (cfg.nextActionsId) {
+      document.getElementById(cfg.nextActionsId).classList.remove("hidden");
+      if (cfg.hintId) document.getElementById(cfg.hintId).textContent = "Space / Enter = Next";
+    }
+  }
+
+  function rate(r) {
+    if (!revealed) return;
+    const p = queue[idx];
+    rateCard(srsData, p.name, r);
+    idx++;
+    show();
+    updateStats();
+  }
+
+  function next() {
+    if (!revealed) return;
+    idx++;
+    show();
+  }
+
+  function done() {
+    document.getElementById(cfg.cardId).classList.add("hidden");
+    document.getElementById(cfg.revealActionsId).classList.add("hidden");
+    if (cfg.rateActionsId) document.getElementById(cfg.rateActionsId).classList.add("hidden");
+    if (cfg.nextActionsId) document.getElementById(cfg.nextActionsId).classList.add("hidden");
+    if (cfg.hintId) document.getElementById(cfg.hintId).textContent = "";
+    if (cfg.progressId) document.getElementById(cfg.progressId).style.width = "100%";
+    document.getElementById(cfg.doneId).classList.remove("hidden");
+    if (cfg.doneMsgId) {
+      document.getElementById(cfg.doneMsgId).textContent = `${queue.length} cards reviewed.`;
+    }
+    updateStats();
+  }
+
+  function start(cards) {
+    queue = cards;
+    idx = 0;
+    show();
+    // init ref map
+    if (cfg.refMapId) {
+      setTimeout(() => initRefMap(cfg.refMapId), 80);
+    }
+  }
+
+  return { show, reveal, rate, next, start, isRevealed: () => revealed };
+}
+
+// === SRS ENGINE INSTANCE ===
+const srsEngine = createFlashcardEngine({
+  cardId: "card-srs", nameId: "q-name-srs", answerId: "card-answer-srs",
+  revealActionsId: "actions-srs", rateActionsId: "rate-actions-srs",
+  hintId: "kb-hint-srs", progressId: "progress-srs", doneId: "done-srs",
+  mapId: "map", coordId: "coord-bar-srs", refMapId: "ref-map",
+  subFn: (p) => {
+    const c = srsData.cards[p.name];
+    document.getElementById("q-sub-srs").textContent =
+      (c && c.reps > 0) ? `Interval: ${c.interval}d \u00b7 Ease: ${c.ease.toFixed(2)}` : "New card";
+  }
+});
+
+// === DRILL ENGINE INSTANCE ===
+const drillEngine = createFlashcardEngine({
+  cardId: "card-drill", nameId: "q-name-drill", answerId: "card-answer-drill",
+  revealActionsId: "actions-drill", nextActionsId: "next-actions-drill",
+  hintId: "kb-hint-drill", progressId: "progress-drill", doneId: "done-drill",
+  doneMsgId: "done-drill-msg", mapId: "map-drill", coordId: "coord-bar-drill",
+  refMapId: "ref-map-drill",
+  subFn: (p, idx, len) => {
+    document.getElementById("q-sub-drill").textContent = `${idx + 1} / ${len}`;
+  }
+});
+
+// === FAVORITES ENGINE INSTANCE ===
+const favEngine = createFlashcardEngine({
+  cardId: "card-fav", nameId: "q-name-fav", answerId: "card-answer-fav",
+  revealActionsId: "actions-fav", nextActionsId: "next-actions-fav",
+  hintId: "kb-hint-fav", progressId: "progress-fav", doneId: "done-fav",
+  doneMsgId: "done-fav-msg", mapId: "map-fav", coordId: "coord-bar-fav",
+  refMapId: "ref-map-fav",
+  subFn: (p, idx, len) => {
+    document.getElementById("q-sub-fav").textContent = `${idx + 1} / ${len}`;
+  }
+});
+
+// === STATS ===
 function updateStats() {
   const now = Date.now();
   let due = 0, learned = 0;
   POINTS.forEach(p => {
     const c = srsData.cards[p.name];
-    if (c && c.reps > 0) {
-      learned++;
-      if (c.due <= now) due++;
-    } else {
-      due++;
-    }
+    if (c && c.reps > 0) { learned++; if (c.due <= now) due++; }
+    else due++;
   });
-  $statDue.textContent = due;
-  $statLearned.textContent = learned;
-  $statTotal.textContent = POINTS.length;
+  document.getElementById("stat-due").textContent = due;
+  document.getElementById("stat-learned").textContent = learned;
+  document.getElementById("stat-total").textContent = POINTS.length;
 }
 
-function showCard() {
-  $doneScreen.classList.remove("visible");
-  $card.style.display = "";
+// === VIEW SWITCHING ===
+const views = ["view-srs", "view-drill", "view-favorites", "view-explore"];
 
-  if (currentIdx >= queue.length) {
-    showDone();
-    return;
+function switchView(m) {
+  mode = m;
+  views.forEach(v => document.getElementById(v).classList.add("hidden"));
+  document.querySelectorAll(".nav-tab").forEach(t => t.classList.toggle("active", t.dataset.mode === m));
+
+  if (m === "srs") {
+    document.getElementById("view-srs").classList.remove("hidden");
+    srsEngine.start(getDueCards(srsData));
+  } else if (m === "drill") {
+    document.getElementById("view-drill").classList.remove("hidden");
+    document.getElementById("drill-settings").classList.remove("hidden");
+    document.getElementById("drill-active").classList.add("hidden");
+    document.getElementById("done-drill").classList.add("hidden");
+  } else if (m === "favorites") {
+    document.getElementById("view-favorites").classList.remove("hidden");
+    document.querySelector(".favorites-view").classList.remove("hidden");
+    document.getElementById("fav-active").classList.add("hidden");
+    document.getElementById("done-fav").classList.add("hidden");
+    renderFavorites();
+  } else if (m === "explore") {
+    document.getElementById("view-explore").classList.remove("hidden");
+    initExplore();
   }
-
-  const point = queue[currentIdx];
-  revealed = false;
-  $qName.textContent = point.name;
-
-  if (mode === "srs") {
-    const c = srsData.cards[point.name];
-    if (c && c.reps > 0) {
-      $qSub.textContent = `Interval: ${c.interval}d \u00b7 Ease: ${c.ease.toFixed(2)}`;
-    } else {
-      $qSub.textContent = "New card";
-    }
-  } else {
-    $qSub.textContent = `${currentIdx + 1} / ${queue.length}`;
-  }
-
-  $answer.classList.remove("visible");
-  $actions.style.display = "flex";
-  $rateActions.style.display = "none";
-  $drillActions.style.display = "none";
-  $kbHint.textContent = "Space = Reveal";
-
-  const pct = queue.length > 0 ? (currentIdx / queue.length) * 100 : 0;
-  $progress.style.width = pct + "%";
-
   updateStats();
 }
 
-function revealCard() {
-  if (revealed) return;
-  revealed = true;
-
-  const point = queue[currentIdx];
-  $answer.classList.add("visible");
-  $actions.style.display = "none";
-
-  // Init map after the container is visible
-  setTimeout(() => {
-    initMap();
-    showPointOnMap(point);
-  }, 50);
-
-  if (mode === "srs") {
-    $rateActions.style.display = "flex";
-    $kbHint.textContent = "1 = Again \u00b7 2 = Hard \u00b7 3 = Good \u00b7 4 = Easy";
-  } else {
-    $drillActions.style.display = "flex";
-    $kbHint.textContent = "Space / Enter = Next";
-  }
-}
-
-function handleRate(rating) {
-  if (!revealed) return;
-  const point = queue[currentIdx];
-  rateCard(srsData, point.name, rating);
-  currentIdx++;
-  showCard();
-}
-
-function handleDrillNext() {
-  if (!revealed) return;
-  currentIdx++;
-  showCard();
-}
-
-function showDone() {
-  $card.style.display = "none";
-  $actions.style.display = "none";
-  $rateActions.style.display = "none";
-  $drillActions.style.display = "none";
-  $kbHint.textContent = "";
-  $progress.style.width = "100%";
-
-  if (mode === "srs") {
-    $doneMsg.textContent = "All due cards reviewed! Come back later for more.";
-  } else {
-    $doneMsg.textContent = `Drill complete: ${queue.length} cards reviewed.`;
-  }
-  $doneScreen.classList.add("visible");
-  updateStats();
-}
-
-// === MODE SWITCHING ===
-document.querySelectorAll(".mode-tab").forEach(tab => {
-  tab.addEventListener("click", () => {
-    document.querySelectorAll(".mode-tab").forEach(t => t.classList.remove("active"));
-    tab.classList.add("active");
-    mode = tab.dataset.mode;
-    startMode();
-  });
+document.querySelectorAll(".nav-tab").forEach(tab => {
+  tab.addEventListener("click", () => switchView(tab.dataset.mode));
 });
 
-function startMode() {
-  currentIdx = 0;
-  $doneScreen.classList.remove("visible");
+// === SRS WIRING ===
+document.getElementById("btn-reveal-srs").addEventListener("click", () => srsEngine.reveal());
+document.querySelectorAll("#rate-actions-srs .btn").forEach(btn => {
+  btn.addEventListener("click", () => srsEngine.rate(parseInt(btn.dataset.rating)));
+});
+document.getElementById("restart-srs").addEventListener("click", () => switchView("srs"));
 
-  if (mode === "srs") {
-    $drillSettings.classList.remove("visible");
-    queue = getDueCards(srsData);
-    showCard();
-  } else {
-    $drillSettings.classList.add("visible");
-    $card.style.display = "none";
-    $actions.style.display = "none";
-    $rateActions.style.display = "none";
-    $drillActions.style.display = "none";
-  }
-}
-
+// === DRILL WIRING ===
+document.getElementById("btn-reveal-drill").addEventListener("click", () => drillEngine.reveal());
+document.getElementById("btn-next-drill").addEventListener("click", () => drillEngine.next());
+document.getElementById("restart-drill").addEventListener("click", () => switchView("drill"));
 document.getElementById("start-drill").addEventListener("click", () => {
   const count = parseInt(document.getElementById("drill-count").value) || 20;
   const order = document.getElementById("drill-order").value;
-
   let pool = [...POINTS];
   if (order === "random") pool = shuffle(pool);
   else if (order === "alpha") pool.sort((a, b) => a.name.localeCompare(b.name));
   else if (order === "worst") {
     pool.sort((a, b) => {
-      const ca = srsData.cards[a.name];
-      const cb = srsData.cards[b.name];
-      const sa = ca ? ca.lapses - ca.reps : 100;
-      const sb = cb ? cb.lapses - cb.reps : 100;
-      return sb - sa;
+      const ca = srsData.cards[a.name], cb = srsData.cards[b.name];
+      return (cb ? cb.lapses - cb.reps : 100) - (ca ? ca.lapses - ca.reps : 100);
     });
   }
-
-  queue = pool.slice(0, Math.min(count, pool.length));
-  currentIdx = 0;
-  $drillSettings.classList.remove("visible");
-  showCard();
+  pool = pool.slice(0, Math.min(count, pool.length));
+  document.getElementById("drill-settings").classList.add("hidden");
+  document.getElementById("drill-active").classList.remove("hidden");
+  drillEngine.start(pool);
 });
 
-// === REVEAL & RATING BUTTONS ===
-document.getElementById("btn-reveal").addEventListener("click", revealCard);
-document.querySelectorAll("#rate-actions .btn").forEach(btn => {
-  btn.addEventListener("click", () => handleRate(parseInt(btn.dataset.rating)));
+// === FAVORITES WIRING ===
+function renderFavorites(filter = "") {
+  const grid = document.getElementById("fav-grid");
+  grid.innerHTML = "";
+  const f = filter.toLowerCase();
+  POINTS.filter(p => !f || p.name.toLowerCase().includes(f)).forEach(p => {
+    const el = document.createElement("div");
+    el.className = "fav-item" + (favorites.has(p.name) ? " selected" : "");
+    el.innerHTML = `<div class="check">${favorites.has(p.name) ? "\u2713" : ""}</div><span>${p.name}</span>`;
+    el.addEventListener("click", () => {
+      if (favorites.has(p.name)) favorites.delete(p.name);
+      else favorites.add(p.name);
+      saveFavorites(favorites);
+      renderFavorites(document.getElementById("fav-search").value);
+    });
+    grid.appendChild(el);
+  });
+  document.getElementById("fav-count").textContent = favorites.size + " selected";
+}
+
+document.getElementById("fav-search").addEventListener("input", e => renderFavorites(e.target.value));
+document.getElementById("fav-select-all").addEventListener("click", () => {
+  POINTS.forEach(p => favorites.add(p.name));
+  saveFavorites(favorites);
+  renderFavorites(document.getElementById("fav-search").value);
 });
-document.getElementById("btn-drill-next").addEventListener("click", handleDrillNext);
-document.getElementById("btn-restart").addEventListener("click", () => startMode());
+document.getElementById("fav-clear").addEventListener("click", () => {
+  favorites.clear();
+  saveFavorites(favorites);
+  renderFavorites(document.getElementById("fav-search").value);
+});
+document.getElementById("fav-start").addEventListener("click", () => {
+  const selected = POINTS.filter(p => favorites.has(p.name));
+  if (selected.length === 0) return;
+  document.querySelector(".favorites-view").classList.add("hidden");
+  document.getElementById("fav-active").classList.remove("hidden");
+  favEngine.start(shuffle(selected));
+});
+document.getElementById("btn-reveal-fav").addEventListener("click", () => favEngine.reveal());
+document.getElementById("btn-next-fav").addEventListener("click", () => favEngine.next());
+document.getElementById("restart-fav").addEventListener("click", () => switchView("favorites"));
+
+// === EXPLORE VIEW ===
+let exploreMap = null;
+let exploreMarker = null;
+let exploreAllMarkers = [];
+
+function initExplore() {
+  const items = document.getElementById("explore-items");
+  items.innerHTML = "";
+  const sorted = [...POINTS].sort((a, b) => a.name.localeCompare(b.name));
+  sorted.forEach(p => {
+    const el = document.createElement("div");
+    el.className = "explore-item";
+    el.textContent = p.name;
+    el.dataset.name = p.name;
+    el.addEventListener("click", () => selectExplorePoint(p, el));
+    items.appendChild(el);
+  });
+
+  setTimeout(() => {
+    if (exploreMap) exploreMap.remove();
+    exploreMap = L.map("explore-map", { center: [46.65, 6.9], zoom: 8 });
+    createTileLayer().addTo(exploreMap);
+
+    // Show all points as small grey dots
+    exploreAllMarkers = sorted.map(p =>
+      L.circleMarker([p.lat, p.lon], {
+        radius: 4, color: "#5a6a80", fillColor: "#5a6a80", fillOpacity: 0.5, weight: 1
+      }).bindTooltip(p.name, { direction: "top", offset: [0, -6] }).addTo(exploreMap)
+    );
+  }, 100);
+
+  document.getElementById("explore-search").addEventListener("input", e => {
+    const f = e.target.value.toLowerCase();
+    items.querySelectorAll(".explore-item").forEach(el => {
+      el.style.display = el.dataset.name.toLowerCase().includes(f) ? "" : "none";
+    });
+  });
+}
+
+function selectExplorePoint(p, el) {
+  document.querySelectorAll(".explore-item").forEach(e => e.classList.remove("active"));
+  el.classList.add("active");
+
+  if (exploreMarker) exploreMap.removeLayer(exploreMarker);
+  exploreMarker = L.circleMarker([p.lat, p.lon], {
+    radius: 11, color: "#c0392b", fillColor: "#e74c3c", fillOpacity: 0.9, weight: 3
+  }).addTo(exploreMap);
+  exploreMap.setView([p.lat, p.lon], 10, { animate: true });
+
+  const info = document.getElementById("explore-info");
+  info.classList.remove("hidden");
+  document.getElementById("explore-name").textContent = p.name;
+  document.getElementById("explore-coords").textContent =
+    `${p.lat.toFixed(4)}\u00b0N  ${p.lon.toFixed(4)}\u00b0E`;
+}
 
 // === KEYBOARD ===
 document.addEventListener("keydown", e => {
   if (e.target.tagName === "INPUT" || e.target.tagName === "SELECT") return;
   if (e.code === "Space" || e.code === "Enter") {
     e.preventDefault();
-    if (!revealed) revealCard();
-    else if (mode === "drill") handleDrillNext();
+    if (mode === "srs") { if (!srsEngine.isRevealed()) srsEngine.reveal(); }
+    else if (mode === "drill") {
+      if (!drillEngine.isRevealed()) drillEngine.reveal(); else drillEngine.next();
+    }
+    else if (mode === "favorites") {
+      if (!favEngine.isRevealed()) favEngine.reveal(); else favEngine.next();
+    }
   }
-  if (revealed && mode === "srs" && e.key >= "1" && e.key <= "4") {
-    handleRate(parseInt(e.key));
+  if (mode === "srs" && srsEngine.isRevealed() && e.key >= "1" && e.key <= "4") {
+    srsEngine.rate(parseInt(e.key));
   }
 });
 
 // === INIT ===
 updateStats();
-queue = getDueCards(srsData);
-showCard();
+srsEngine.start(getDueCards(srsData));
 </script>
 </body>
 </html>
