@@ -140,7 +140,9 @@
   }
   #ref-map, #ref-map-drill, #ref-map-fav {
     width: 100%;
-    height: 340px;
+    height: 55vh;
+    min-height: 350px;
+    max-height: 550px;
   }
 
   /* === CARD === */
@@ -456,7 +458,7 @@
     .app { padding: 12px; }
     .card-question h2 { font-size: 1.5rem; }
     #map { height: 300px; }
-    #ref-map, #ref-map-drill, #ref-map-fav { height: 240px; }
+    #ref-map, #ref-map-drill, #ref-map-fav { height: 40vh; min-height: 220px; max-height: 350px; }
     .explore-view { flex-direction: column; height: auto; }
     .explore-list { width: 100%; max-height: 250px; }
     .explore-map-wrap { height: 400px; }
@@ -821,7 +823,7 @@ function initRefMap(containerId) {
   if (!el) return;
   if (maps[containerId]) { maps[containerId].remove(); }
   const m = L.map(el, {
-    center: [46.82, 7.0],
+    center: [46.80, 7.5],
     zoom: 8,
     zoomControl: false,
     dragging: false,
@@ -832,11 +834,11 @@ function initRefMap(containerId) {
     keyboard: false,
     attributionControl: false
   });
-  // Clean white basemap: only borders, lakes, water — no terrain, no labels
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png", {
-    attribution: '&copy; <a href="https://carto.com">CARTO</a>',
-    maxZoom: 19,
-    subdomains: "abcd"
+  // Swisstopo grey relief map — borders, lakes, terrain shading, minimal labels
+  L.tileLayer("https://wmts.geo.admin.ch/1.0.0/ch.swisstopo.pixelkarte-grau/default/current/3857/{z}/{x}/{y}.jpeg", {
+    attribution: '&copy; swisstopo',
+    maxZoom: 18,
+    minZoom: 7
   }).addTo(m);
   maps[containerId] = m;
   return m;
