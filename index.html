@@ -138,11 +138,11 @@
     letter-spacing: 0.5px;
     text-transform: uppercase;
   }
-  #ref-map, #ref-map-drill, #ref-map-fav {
+  .ref-map-img {
     width: 100%;
-    height: 55vh;
-    min-height: 350px;
-    max-height: 550px;
+    display: block;
+    object-fit: contain;
+    background: #e8e8e8;
   }
 
   /* === CARD === */
@@ -169,7 +169,7 @@
   }
   .card-answer { display: none; flex-direction: column; }
   .card-answer.visible { display: flex; }
-  #map {
+  #map, #map-drill, #map-fav {
     width: 100%;
     height: 380px;
     border-top: 1px solid var(--border);
@@ -457,8 +457,8 @@
     .nav-tab { padding: 6px 10px; font-size: 0.75rem; }
     .app { padding: 12px; }
     .card-question h2 { font-size: 1.5rem; }
-    #map { height: 300px; }
-    #ref-map, #ref-map-drill, #ref-map-fav { height: 40vh; min-height: 220px; max-height: 350px; }
+    #map, #map-drill, #map-fav { height: 300px; }
+    .ref-map-img { max-height: 280px; }
     .explore-view { flex-direction: column; height: auto; }
     .explore-list { width: 100%; max-height: 250px; }
     .explore-map-wrap { height: 400px; }
@@ -488,7 +488,7 @@
   <div class="progress-bar"><div class="progress-fill" id="progress-srs"></div></div>
   <div class="ref-map-wrap">
     <div class="ref-map-label">Reference Map</div>
-    <div id="ref-map"></div>
+    <img class="ref-map-img" src="https://prod-swisstopoch-hcms-sdweb.imgix.net/dam/de/sd-web/fofVAADFXHwV/Teaser-Uebersichtskarte.jpg?w=2000" alt="Übersichtskarte der Schweiz">
   </div>
   <div class="card" id="card-srs">
     <div class="card-question">
@@ -539,7 +539,7 @@
     <div class="progress-bar"><div class="progress-fill" id="progress-drill"></div></div>
     <div class="ref-map-wrap">
       <div class="ref-map-label">Reference Map</div>
-      <div id="ref-map-drill"></div>
+      <img class="ref-map-img" src="https://prod-swisstopoch-hcms-sdweb.imgix.net/dam/de/sd-web/fofVAADFXHwV/Teaser-Uebersichtskarte.jpg?w=2000" alt="Übersichtskarte der Schweiz">
     </div>
     <div class="card" id="card-drill">
       <div class="card-question">
@@ -586,7 +586,7 @@
     <div class="progress-bar"><div class="progress-fill" id="progress-fav"></div></div>
     <div class="ref-map-wrap">
       <div class="ref-map-label">Reference Map</div>
-      <div id="ref-map-fav"></div>
+      <img class="ref-map-img" src="https://prod-swisstopoch-hcms-sdweb.imgix.net/dam/de/sd-web/fofVAADFXHwV/Teaser-Uebersichtskarte.jpg?w=2000" alt="Übersichtskarte der Schweiz">
     </div>
     <div class="card" id="card-fav">
       <div class="card-question">
@@ -817,33 +817,6 @@ function createTileLayer() {
   return L.tileLayer(TILE_URL, { attribution: TILE_ATTR, maxZoom: 17 });
 }
 
-// === REFERENCE MAP (static, no markers, same for every card) ===
-function initRefMap(containerId) {
-  const el = document.getElementById(containerId);
-  if (!el) return;
-  if (maps[containerId]) { maps[containerId].remove(); }
-  const m = L.map(el, {
-    center: [46.80, 7.5],
-    zoom: 8,
-    zoomControl: false,
-    dragging: false,
-    scrollWheelZoom: false,
-    doubleClickZoom: false,
-    touchZoom: false,
-    boxZoom: false,
-    keyboard: false,
-    attributionControl: false
-  });
-  // Swisstopo grey relief map — borders, lakes, terrain shading, minimal labels
-  L.tileLayer("https://wmts.geo.admin.ch/1.0.0/ch.swisstopo.pixelkarte-grau/default/current/3857/{z}/{x}/{y}.jpeg", {
-    attribution: '&copy; swisstopo',
-    maxZoom: 18,
-    minZoom: 7
-  }).addTo(m);
-  maps[containerId] = m;
-  return m;
-}
-
 // === ANSWER MAP (interactive, with red dot) ===
 function initAnswerMap(containerId) {
   if (maps[containerId]) { maps[containerId].remove(); }
@@ -955,10 +928,7 @@ function createFlashcardEngine(cfg) {
     queue = cards;
     idx = 0;
     show();
-    // init ref map
-    if (cfg.refMapId) {
-      setTimeout(() => initRefMap(cfg.refMapId), 80);
-    }
+    // ref map is now a static <img>, no init needed
   }
 
   return { show, reveal, rate, next, start, isRevealed: () => revealed };
@@ -969,7 +939,7 @@ const srsEngine = createFlashcardEngine({
   cardId: "card-srs", nameId: "q-name-srs", answerId: "card-answer-srs",
   revealActionsId: "actions-srs", rateActionsId: "rate-actions-srs",
   hintId: "kb-hint-srs", progressId: "progress-srs", doneId: "done-srs",
-  mapId: "map", coordId: "coord-bar-srs", refMapId: "ref-map",
+  mapId: "map", coordId: "coord-bar-srs",
   subFn: (p) => {
     const c = srsData.cards[p.name];
     document.getElementById("q-sub-srs").textContent =
@@ -983,7 +953,6 @@ const drillEngine = createFlashcardEngine({
   revealActionsId: "actions-drill", nextActionsId: "next-actions-drill",
   hintId: "kb-hint-drill", progressId: "progress-drill", doneId: "done-drill",
   doneMsgId: "done-drill-msg", mapId: "map-drill", coordId: "coord-bar-drill",
-  refMapId: "ref-map-drill",
   subFn: (p, idx, len) => {
     document.getElementById("q-sub-drill").textContent = `${idx + 1} / ${len}`;
   }
@@ -995,7 +964,6 @@ const favEngine = createFlashcardEngine({
   revealActionsId: "actions-fav", nextActionsId: "next-actions-fav",
   hintId: "kb-hint-fav", progressId: "progress-fav", doneId: "done-fav",
   doneMsgId: "done-fav-msg", mapId: "map-fav", coordId: "coord-bar-fav",
-  refMapId: "ref-map-fav",
   subFn: (p, idx, len) => {
     document.getElementById("q-sub-fav").textContent = `${idx + 1} / ${len}`;
   }
