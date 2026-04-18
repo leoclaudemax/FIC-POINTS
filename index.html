@@ -244,6 +244,133 @@
   .btn-next:hover { filter: brightness(1.1); }
   .btn-restart { background: var(--accent); color: #1a1a2e; }
   .btn-restart:hover { background: var(--accent2); }
+  .btn-knew { background: var(--green); color: #1a3a2e; min-width: 160px; }
+  .btn-knew:hover { filter: brightness(1.1); }
+  .btn-wrong { background: var(--red); color: #3a1a1a; min-width: 160px; }
+  .btn-wrong:hover { filter: brightness(1.1); }
+
+  /* === GAMIFICATION HUD === */
+  .game-hud {
+    display: flex;
+    gap: 14px;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .hud-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+  }
+  .hud-label { color: var(--text3); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; }
+  .hud-value { color: var(--accent); font-weight: 700; font-size: 1rem; }
+  .hud-value.streak-fire { color: #ff7e3d; animation: pulse 1.2s infinite; }
+  .hud-remaining { color: var(--blue); }
+  .hud-correct { color: var(--green); }
+  .hud-wrong { color: var(--red); }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+  }
+  .xp-bar-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    height: 10px;
+    overflow: hidden;
+    margin-bottom: 14px;
+    position: relative;
+  }
+  .xp-bar-fill {
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    height: 100%;
+    width: 0%;
+    transition: width 0.5s ease;
+  }
+  .xp-bar-label {
+    position: absolute;
+    inset: 0;
+    text-align: center;
+    font-size: 0.7rem;
+    color: var(--text);
+    line-height: 10px;
+    font-weight: 600;
+    text-shadow: 0 0 3px rgba(0,0,0,0.6);
+  }
+  .level-up-flash {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #1a1a2e;
+    padding: 30px 50px;
+    border-radius: 16px;
+    font-size: 2rem;
+    font-weight: 800;
+    z-index: 9999;
+    box-shadow: 0 10px 60px rgba(226,153,94,0.5);
+    animation: levelUp 1.8s ease forwards;
+    pointer-events: none;
+  }
+  @keyframes levelUp {
+    0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+    20% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+    80% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(0.9); opacity: 0; }
+  }
+  .floating-xp {
+    position: fixed;
+    color: var(--green);
+    font-weight: 800;
+    font-size: 1.5rem;
+    pointer-events: none;
+    z-index: 9998;
+    animation: floatUp 1.2s ease-out forwards;
+  }
+  @keyframes floatUp {
+    0% { opacity: 0; transform: translateY(0); }
+    20% { opacity: 1; }
+    100% { opacity: 0; transform: translateY(-80px); }
+  }
+  .completion-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    max-width: 400px;
+    margin: 20px auto;
+  }
+  .stat-card {
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    padding: 14px;
+    text-align: center;
+  }
+  .stat-card-value { font-size: 1.6rem; font-weight: 800; color: var(--accent); }
+  .stat-card-label { font-size: 0.72rem; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
+  .perfect-banner {
+    background: linear-gradient(135deg, var(--green), #38a169);
+    color: #fff;
+    padding: 16px;
+    border-radius: 10px;
+    font-weight: 700;
+    margin: 16px auto;
+    max-width: 400px;
+    animation: pulse 1.5s infinite;
+  }
+  .motivation-msg {
+    font-size: 1.1rem;
+    color: var(--accent2);
+    font-weight: 600;
+    margin: 12px 0;
+  }
   .kb-hint {
     font-size: 0.72rem;
     color: var(--text3);
@@ -522,8 +649,8 @@
       <div id="map"></div>
       <div class="coord-bar" id="coord-bar-srs"></div>
     </div>
-    <div class="info-box" id="info-box-srs"><div class="info-box-title">Did you know?</div><span id="info-text-srs"></span></div>
   </div>
+  <div class="info-box" id="info-box-srs"><div class="info-box-title">Did you know?</div><span id="info-text-srs"></span></div>
   <div class="actions" id="actions-srs">
     <button class="btn btn-reveal" id="btn-reveal-srs">Reveal Location</button>
   </div>
@@ -574,8 +701,8 @@
         <div id="map-drill"></div>
         <div class="coord-bar" id="coord-bar-drill"></div>
       </div>
-      <div class="info-box" id="info-box-drill"><div class="info-box-title">Did you know?</div><span id="info-text-drill"></span></div>
     </div>
+    <div class="info-box" id="info-box-drill"><div class="info-box-title">Did you know?</div><span id="info-text-drill"></span></div>
     <div class="actions" id="actions-drill">
       <button class="btn btn-reveal" id="btn-reveal-drill">Reveal Location</button>
     </div>
@@ -608,6 +735,13 @@
   </div>
   <!-- Active favorites drill -->
   <div class="hidden" id="fav-active">
+    <div class="game-hud">
+      <div class="hud-item"><span class="hud-label">Streak</span><span class="hud-value" id="hud-streak">0 \ud83d\udd25</span></div>
+      <div class="hud-item"><span class="hud-label">Accuracy</span><span class="hud-value" id="hud-accuracy">100%</span></div>
+      <div class="hud-item"><span class="hud-label">Remaining</span><span class="hud-value hud-remaining" id="hud-remaining">0</span></div>
+      <div class="hud-item"><span class="hud-label">Level</span><span class="hud-value" id="hud-level">1</span></div>
+    </div>
+    <div class="xp-bar-wrap"><div class="xp-bar-fill" id="xp-bar-fill"></div><div class="xp-bar-label" id="xp-bar-label">0 / 100 XP</div></div>
     <div class="progress-bar"><div class="progress-fill" id="progress-fav"></div></div>
     <div class="ref-map-wrap">
       <div class="ref-map-label">Reference Map</div>
@@ -622,18 +756,27 @@
         <div id="map-fav"></div>
         <div class="coord-bar" id="coord-bar-fav"></div>
       </div>
-      <div class="info-box" id="info-box-fav"><div class="info-box-title">Did you know?</div><span id="info-text-fav"></span></div>
     </div>
+    <div class="info-box" id="info-box-fav"><div class="info-box-title">Did you know?</div><span id="info-text-fav"></span></div>
     <div class="actions" id="actions-fav">
       <button class="btn btn-reveal" id="btn-reveal-fav">Reveal Location</button>
     </div>
     <div class="actions hidden" id="next-actions-fav">
-      <button class="btn btn-next" id="btn-next-fav">Next Card</button>
+      <button class="btn btn-knew" id="btn-knew-fav">I knew it ✓</button>
+      <button class="btn btn-wrong" id="btn-wrong-fav">Got it wrong ✗</button>
     </div>
     <div class="kb-hint" id="kb-hint-fav">Space = Reveal</div>
   </div>
   <div class="done-screen hidden" id="done-fav">
-    <h2>Done!</h2>
+    <h2 id="done-fav-title">Session Complete!</h2>
+    <div class="motivation-msg" id="done-fav-motivation"></div>
+    <div id="perfect-banner-wrap"></div>
+    <div class="completion-stats">
+      <div class="stat-card"><div class="stat-card-value" id="cs-cards">0</div><div class="stat-card-label">Cards Mastered</div></div>
+      <div class="stat-card"><div class="stat-card-value" id="cs-accuracy">0%</div><div class="stat-card-label">First-Try Accuracy</div></div>
+      <div class="stat-card"><div class="stat-card-value" id="cs-streak">0</div><div class="stat-card-label">Best Streak</div></div>
+      <div class="stat-card"><div class="stat-card-value" id="cs-xp">0</div><div class="stat-card-label">XP Earned</div></div>
+    </div>
     <p id="done-fav-msg"></p>
     <button class="btn btn-restart" id="restart-fav">Back to Selection</button>
   </div>
@@ -1103,17 +1246,211 @@ const drillEngine = createFlashcardEngine({
   }
 });
 
-// === FAVORITES ENGINE INSTANCE ===
-const favEngine = createFlashcardEngine({
-  cardId: "card-fav", nameId: "q-name-fav", answerId: "card-answer-fav",
-  revealActionsId: "actions-fav", nextActionsId: "next-actions-fav",
-  hintId: "kb-hint-fav", progressId: "progress-fav", doneId: "done-fav",
-  doneMsgId: "done-fav-msg", mapId: "map-fav", coordId: "coord-bar-fav",
-  infoBoxId: "info-box-fav", infoTextId: "info-text-fav",
-  subFn: (p, idx, len) => {
-    document.getElementById("q-sub-fav").textContent = `${idx + 1} / ${len}`;
+// === FAVORITES ENGINE (custom: right/wrong, re-queue, XP) ===
+const GAME_KEY = "fic_delta_game_v1";
+function loadGame() {
+  try { const d = JSON.parse(localStorage.getItem(GAME_KEY)); if (d) return d; } catch(e) {}
+  return { xp: 0, level: 1, totalCorrect: 0, totalWrong: 0, bestStreak: 0, perfectRuns: 0, lastDay: null, dayStreak: 0 };
+}
+function saveGame(g) { localStorage.setItem(GAME_KEY, JSON.stringify(g)); }
+let gameData = loadGame();
+
+function xpForLevel(lvl) { return lvl * 100; }
+function awardXP(amount) {
+  gameData.xp += amount;
+  while (gameData.xp >= xpForLevel(gameData.level)) {
+    gameData.xp -= xpForLevel(gameData.level);
+    gameData.level++;
+    showLevelUp(gameData.level);
   }
-});
+  saveGame(gameData);
+  updateGameHUD();
+}
+function showLevelUp(lvl) {
+  const el = document.createElement("div");
+  el.className = "level-up-flash";
+  el.textContent = "LEVEL " + lvl + "!";
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1800);
+}
+function showFloatingXP(amount, x, y) {
+  const el = document.createElement("div");
+  el.className = "floating-xp";
+  el.textContent = "+" + amount + " XP";
+  el.style.left = x + "px";
+  el.style.top = y + "px";
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1200);
+}
+function updateGameHUD() {
+  const lvlEl = document.getElementById("hud-level");
+  if (lvlEl) lvlEl.textContent = gameData.level;
+  const xpFill = document.getElementById("xp-bar-fill");
+  const xpLabel = document.getElementById("xp-bar-label");
+  if (xpFill) {
+    const need = xpForLevel(gameData.level);
+    xpFill.style.width = (gameData.xp / need * 100) + "%";
+    xpLabel.textContent = gameData.xp + " / " + need + " XP";
+  }
+}
+
+// Custom favorites engine with right/wrong logic
+const favEngine = (() => {
+  let queue = [];          // current cycle of cards to answer
+  let nextQueue = [];      // cards marked wrong, to be re-queued
+  let originalCount = 0;
+  let mastered = new Set();
+  let attemptCount = 0;
+  let firstTryCorrect = 0;
+  let seenThisCycle = new Set();
+  let revealed = false;
+  let streak = 0;
+  let bestStreakSession = 0;
+  let xpEarnedSession = 0;
+  let cur = null;
+  let attemptsForCurrent = {};
+
+  function show() {
+    document.getElementById("done-fav").classList.add("hidden");
+    document.getElementById("card-fav").classList.remove("hidden");
+    document.getElementById("info-box-fav").classList.remove("visible");
+
+    if (queue.length === 0 && nextQueue.length === 0) { done(); return; }
+    if (queue.length === 0) {
+      queue = nextQueue;
+      nextQueue = [];
+    }
+
+    revealed = false;
+    cur = queue[0];
+    document.getElementById("q-name-fav").textContent = cur.name;
+    document.getElementById("q-sub-fav").textContent = mastered.size + " / " + originalCount + " mastered";
+    document.getElementById("card-answer-fav").classList.remove("visible");
+    document.getElementById("actions-fav").classList.remove("hidden");
+    document.getElementById("next-actions-fav").classList.add("hidden");
+    document.getElementById("kb-hint-fav").textContent = "Space = Reveal";
+    document.getElementById("progress-fav").style.width = (mastered.size / originalCount * 100) + "%";
+
+    // Update HUD
+    document.getElementById("hud-streak").textContent = streak + " \ud83d\udd25";
+    document.getElementById("hud-streak").classList.toggle("streak-fire", streak >= 5);
+    document.getElementById("hud-remaining").textContent = (originalCount - mastered.size);
+    const acc = attemptCount === 0 ? 100 : Math.round(firstTryCorrect / attemptCount * 100);
+    document.getElementById("hud-accuracy").textContent = acc + "%";
+    updateGameHUD();
+  }
+
+  function reveal() {
+    if (revealed) return;
+    revealed = true;
+    document.getElementById("card-answer-fav").classList.add("visible");
+    document.getElementById("actions-fav").classList.add("hidden");
+    setTimeout(() => {
+      initAnswerMap("map-fav");
+      showPointOnMap("map-fav", cur);
+      document.getElementById("coord-bar-fav").textContent =
+        `${cur.lat.toFixed(4)}\u00b0N  ${cur.lon.toFixed(4)}\u00b0E`;
+    }, 50);
+    document.getElementById("next-actions-fav").classList.remove("hidden");
+    document.getElementById("kb-hint-fav").textContent = "J = Knew it \u00b7 F = Wrong";
+    if (POINT_INFO[cur.name]) {
+      document.getElementById("info-text-fav").textContent = POINT_INFO[cur.name];
+      document.getElementById("info-box-fav").classList.add("visible");
+    }
+  }
+
+  function knew() {
+    if (!revealed) return;
+    const isFirstTry = !attemptsForCurrent[cur.name];
+    attemptCount++;
+    if (isFirstTry) firstTryCorrect++;
+    mastered.add(cur.name);
+    queue.shift();
+    streak++;
+    if (streak > bestStreakSession) bestStreakSession = streak;
+    let xp = isFirstTry ? 10 : 5;
+    if (streak >= 5) xp += 5;
+    if (streak >= 10) xp += 10;
+    xpEarnedSession += xp;
+    gameData.totalCorrect++;
+    if (streak > gameData.bestStreak) gameData.bestStreak = streak;
+    awardXP(xp);
+    // Floating XP
+    const btn = document.getElementById("btn-knew-fav");
+    const r = btn.getBoundingClientRect();
+    showFloatingXP(xp, r.left + r.width/2, r.top);
+    show();
+  }
+
+  function wrong() {
+    if (!revealed) return;
+    attemptCount++;
+    attemptsForCurrent[cur.name] = (attemptsForCurrent[cur.name] || 0) + 1;
+    const card = queue.shift();
+    // Re-queue: insert 3-5 cards later, or push to nextQueue if queue too short
+    if (queue.length >= 3) {
+      const insertAt = Math.min(queue.length, 3 + Math.floor(Math.random() * 3));
+      queue.splice(insertAt, 0, card);
+    } else {
+      nextQueue.push(card);
+    }
+    streak = 0;
+    gameData.totalWrong++;
+    saveGame(gameData);
+    show();
+  }
+
+  function done() {
+    document.getElementById("card-fav").classList.add("hidden");
+    document.getElementById("actions-fav").classList.add("hidden");
+    document.getElementById("next-actions-fav").classList.add("hidden");
+    document.getElementById("info-box-fav").classList.remove("visible");
+    document.getElementById("kb-hint-fav").textContent = "";
+    document.getElementById("progress-fav").style.width = "100%";
+    document.getElementById("done-fav").classList.remove("hidden");
+
+    const acc = attemptCount === 0 ? 100 : Math.round(firstTryCorrect / attemptCount * 100);
+    const isPerfect = (acc === 100 && originalCount > 0);
+    if (isPerfect) gameData.perfectRuns++;
+    saveGame(gameData);
+
+    document.getElementById("cs-cards").textContent = originalCount;
+    document.getElementById("cs-accuracy").textContent = acc + "%";
+    document.getElementById("cs-streak").textContent = bestStreakSession;
+    document.getElementById("cs-xp").textContent = xpEarnedSession;
+
+    let msg, title;
+    if (isPerfect) { title = "\ud83c\udfaf PERFECT RUN!"; msg = "Flawless. You're locked in."; }
+    else if (acc >= 90) { title = "\ud83d\udd25 Outstanding!"; msg = "Almost flawless \u2014 keep this up."; }
+    else if (acc >= 75) { title = "\ud83d\udcaa Solid!"; msg = "Good work. A few to drill again."; }
+    else if (acc >= 50) { title = "\ud83d\udcda Getting there"; msg = "Keep practicing \u2014 you're learning."; }
+    else { title = "Session done"; msg = "Don't give up. Repetition is the key."; }
+    document.getElementById("done-fav-title").textContent = title;
+    document.getElementById("done-fav-motivation").textContent = msg;
+    document.getElementById("perfect-banner-wrap").innerHTML = isPerfect
+      ? '<div class="perfect-banner">\ud83c\udfc6 Perfect Run #' + gameData.perfectRuns + ' \u2022 Total Perfect: ' + gameData.perfectRuns + '</div>'
+      : '';
+    document.getElementById("done-fav-msg").textContent =
+      "Total: " + originalCount + " cards \u2022 " + attemptCount + " attempts \u2022 Lifetime XP Level " + gameData.level;
+  }
+
+  function start(cards) {
+    queue = [...cards];
+    nextQueue = [];
+    originalCount = cards.length;
+    mastered = new Set();
+    attemptCount = 0;
+    firstTryCorrect = 0;
+    seenThisCycle = new Set();
+    streak = 0;
+    bestStreakSession = 0;
+    xpEarnedSession = 0;
+    attemptsForCurrent = {};
+    show();
+  }
+
+  return { show, reveal, knew, wrong, start, isRevealed: () => revealed };
+})();
 
 // === STATS ===
 function updateStats() {
@@ -1230,7 +1567,8 @@ document.getElementById("fav-start").addEventListener("click", () => {
   favEngine.start(shuffle(selected));
 });
 document.getElementById("btn-reveal-fav").addEventListener("click", () => favEngine.reveal());
-document.getElementById("btn-next-fav").addEventListener("click", () => favEngine.next());
+document.getElementById("btn-knew-fav").addEventListener("click", () => favEngine.knew());
+document.getElementById("btn-wrong-fav").addEventListener("click", () => favEngine.wrong());
 document.getElementById("restart-fav").addEventListener("click", () => switchView("favorites"));
 
 // === EXPLORE VIEW ===
@@ -1299,11 +1637,15 @@ document.addEventListener("keydown", e => {
       if (!drillEngine.isRevealed()) drillEngine.reveal(); else drillEngine.next();
     }
     else if (mode === "favorites") {
-      if (!favEngine.isRevealed()) favEngine.reveal(); else favEngine.next();
+      if (!favEngine.isRevealed()) favEngine.reveal();
     }
   }
   if (mode === "srs" && srsEngine.isRevealed() && e.key >= "1" && e.key <= "4") {
     srsEngine.rate(parseInt(e.key));
+  }
+  if (mode === "favorites" && favEngine.isRevealed()) {
+    if (e.key === "j" || e.key === "J") favEngine.knew();
+    else if (e.key === "f" || e.key === "F") favEngine.wrong();
   }
 });
 
